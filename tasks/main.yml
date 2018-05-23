@@ -1,0 +1,15 @@
+---
+ 
+ - name: Delete {{ name }} persistent volume claim
+   shell: "kubectl delete persistentvolumeclaim {{ name }} --namespace {{ ns }}"
+   ignore_errors: yes
+ 
+ - name: Wait for {{ name }} persistent volume claim to be deleted
+   shell: "kubectl get persistentvolumeclaims --namespace {{ ns }}"
+   register: result
+   until: result.stdout.find(name) == -1
+   retries: "{{ retry.max }}"
+   delay: "{{ retry.delay }}"
+
+ - name: Create {{ name }} persistent volume claim
+   shell: "kubectl create -f {{ yamls }}/{{ name }}-persistent-volume-claim.yml"
